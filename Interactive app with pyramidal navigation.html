@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<script>
+    $(document).ready(function () {
+        $("#details").hide();
+
+        $("#search").click(function () {
+            getContent($("#video").val());
+        });
+
+        $("#videoList, #personalLibrary").sortable({
+            connectWith: '#personalLibrary'
+        });
+
+        //pyramid:
+        $(document).on('click', '#personalLibrary > li', function () {
+            $("#container").hide();
+            $("#socialLinks").hide();
+            $("#details").show();
+
+            var children = $(this).parent().children();
+            var index = $(this).index();
+
+            showItems(index, children);
+
+            $("#top").click(function () {
+                $("#details").hide();
+                $("#container").show();
+                $("#socialLinks").show();
+            });
+
+            $("#next").click(function () {
+                index = showItems((index+1)%children.length, children);
+            });
+
+            $("#prev").click(function () {
+                index = showItems(index-1, children);
+            });
+
+        });
+    });
+
+
+    function showItems(index, children) {
+        if ( index < 0 ) index = children.length-1;
+        var title = $(children[index]).text();
+        var description = $(children[index]).attr('description');
+        description = description.replace("'", "");
+
+        var image = $(children[index]).children("img").attr('src');
+        $("#title").html("Title: " + title);
+        $("#description").html("Description: " + description);
+        $("#thumbnail").attr('src', image);
+        return index;
+    }
+
+
+    function getContent(video) {
+        var url = 'https://www.googleapis.com/youtube/v3/search?part=snippet&max Results=10&order=relevance&q=' + video + '&type=video&videoCapti on=closedCaption&key=AIzaSyAyvig5VkfPt_lBR4sFl-ajsULtgUHmTwA'
+        $.ajax({
+            url : url,
+            dataType: "json",
+            success: function (data) {
+                for ( var i = 0; i < data.items.length; i++ ){
+                    var title = data.items[i].snippet.title;
+                    var thumbnail = data.items[i].snippet.thumbnails.default.url;
+                    var description = data.items[i].snippet.description;
+                    var liItem = $("<li class = 'liItem' description ='" + description + "'>" + title + "<br><img src='" + thumbnail + "'></li>");
+                    $("#videoList").append(liItem);
+                }
+            }
+        });
+    }
+</script>
+<head>
+    <title>Title</title>
+    <meta charset="UTF-8">
+    <style>
+        body{
+            font-family: "sans-serif", sans-serif;
+        }
+        #socialLinks{
+            width: max-content;
+            height: max-content;
+            margin: auto;
+        }
+        #container{
+            overflow: hidden;
+        }
+        #videos{
+            float: left;
+            margin-right: 35px;
+        }
+        #videoLibrary{
+            overflow: hidden;
+        }
+        #videoList{
+            padding-top: 25px;
+            width: 135px;
+            text-align: center;
+            background-color: #c9c8c5;
+        }
+        #personalLibrary{
+            padding-top: 25px;
+            width: 150px;
+            background-color: #c9c8c5;
+            text-align: center;
+        }
+        .list li {
+            list-style: none;
+            margin-bottom: 25px;
+            margin-left: -35px;
+            padding-left: 15px;
+            padding-right: 15px;
+            padding-bottom: 20px;
+            cursor: pointer;
+        }
+        #details{
+            margin: auto;
+            padding: 10px;
+            width: max-content;
+            text-align: center;
+        }
+    </style>
+    <script src="jquery/jquery-1.11.1.min.js"></script>
+    <link rel="stylesheet" href="jquery/jquery-ui.min.css">
+    <script src="jquery/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="jquery/jquery-ui.structure.min.css">
+    <link rel="stylesheet" href="jquery/jquery-ui.theme.min.css">
+</head>
+<body>
+<div id = 'container'>
+    <p>
+        Key word: <input type = 'text' id = 'video'><br><br>
+        <button id = 'search'>Search</button>
+    </p>
+    <div id = 'videos'>
+        <h2>Videos:</h2>
+        <ul id = 'videoList' class = 'list'>
+
+        </ul>
+    </div>
+    <div id = 'videoLibrary'>
+        <h2>Personal library:</h2>
+        <ul id = 'personalLibrary' class = 'list'>
+        </ul>
+    </div>
+
+</div>
+
+<div id = 'details'>
+    <button id = 'prev'>Previous</button>
+    <button id = 'top'>Top</button>
+    <button id ='next'>Next</button>
+    <p id = 'title'></p>
+    <p id = 'description'></p>
+    <img id = 'thumbnail' src =''>
+</div>
+
+<div id ='socialLinks'>
+    <a href="http://www.delicious.com/Delicious"><img src="images/delicious.png"></a>
+    <a href="http://digg.com/ Digg"><img src="images/digg.png"></a>
+    <a href="http://www.facebook.com/Facebook"><img src="images/facebook.png"></a>
+    <a href="http://www.flickr.com/Flickr"><img src="images/flickr.png"></a>
+    <a href="http://www.linkedin.com/LinkedIn"><img src="images/linkedin.png"></a>
+    <a href="http://www.reddit.com/Reddit"><img src="images/reddit.png"></a>
+    <a href="http://feeds2.feedburner.com/marcofolio RSS"><img src="images/rss.png"></a>
+    <a href="http://twitter.com/Twitter"><img src="images/twitter.png"></a>
+</div>
+
+<script src = 'script.js'></script>
+</body>
+
+
+</html>
